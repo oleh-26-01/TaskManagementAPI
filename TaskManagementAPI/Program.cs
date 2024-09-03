@@ -1,5 +1,10 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TaskManagementAPI.Data;
+using TaskManagementAPI.Interfaces;
+using TaskManagementAPI.Models;
+using TaskManagementAPI.Repositories;
+using TaskManagementAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +20,9 @@ var configuration = builder.Configuration;
 
 services.AddDbContext<TaskManagementDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("TaskManagementDatabase")));
+services.AddScoped<IUserRepository, UserRepository>();
+services.AddScoped<IUserService, UserService>();
+services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 var app = builder.Build();
 

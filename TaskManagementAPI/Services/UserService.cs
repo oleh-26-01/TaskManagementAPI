@@ -71,7 +71,7 @@ public class UserService : IUserService
 
         // Generate JWT token
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"]!);
+        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:TestSecret"]);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new[]

@@ -25,7 +25,7 @@ public class User
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation property for Tasks (one-to-many relationship)
     public List<Task> Tasks { get; set; }
