@@ -2,6 +2,8 @@
 using TaskManagementAPI.Data;
 using TaskManagementAPI.Models;
 
+namespace TaskManagementAPI.Tests;
+
 public class DatabaseTests
 {
     [Fact]
