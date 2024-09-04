@@ -26,7 +26,7 @@ public class Task
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // Foreign key for the User (one-to-many relationship)
     public Guid UserId { get; set; }
