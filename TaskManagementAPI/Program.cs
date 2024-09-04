@@ -23,6 +23,8 @@ services.AddDbContext<TaskManagementDbContext>(options =>
 services.AddScoped<IUserRepository, UserRepository>();
 services.AddScoped<IUserService, UserService>();
 services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+services.AddScoped<ITaskRepository, TaskRepository>();
+services.AddScoped<ITaskService, TaskService>();
 
 var app = builder.Build();
 
