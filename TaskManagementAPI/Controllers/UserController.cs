@@ -5,7 +5,7 @@ using TaskManagementAPI.Models.DTOs.Incoming;
 namespace TaskManagementAPI.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/users")]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;

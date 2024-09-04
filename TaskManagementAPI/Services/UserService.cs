@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using TaskManagementAPI.Interfaces;
@@ -13,6 +14,16 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly IConfiguration _configuration;
     private readonly IPasswordHasher<User> _passwordHasher;
+
+    public static readonly Regex PasswordComplexityRegex = new(
+        "^"                     // Start of the string
+        + "(?=.*[a-z])"         // At least one lowercase letter
+        + "(?=.*[A-Z])"         // At least one uppercase letter
+        + @"(?=.*\d)"           // At least one digit
+        + @"(?=.*[^\da-zA-Z])"  // At least one special character (anything that is not a digit or letter)
+        + ".{8,}$",             // At least 8 characters long
+        RegexOptions.Compiled   // Compile the regex for better performance
+    );
 
     public UserService(IUserRepository userRepository, IConfiguration configuration, IPasswordHasher<User> passwordHasher)
     {
@@ -32,6 +43,15 @@ public class UserService : IUserService
         if (await _userRepository.GetByEmailAsync(email) != null)
         {
             throw new Exception("Email already exists.");
+        }
+
+        // Password complexity validation
+        if (!PasswordComplexityRegex.IsMatch(password))
+        {
+            throw new Exception("Password must be at least 8 characters long " +
+                                "and contain at least one lowercase letter, " +
+                                "one uppercase letter, one digit, " +
+                                "and one special character.");
         }
 
         // Hash the password

@@ -32,7 +32,7 @@ public class UserServiceTests
         // Arrange
         var username = "testuser";
         var email = "test@example.com";
-        var password = "password123";
+        var password = "password123!X";
 
         _mockUserRepository.Setup(repo => repo.CreateAsync(It.IsAny<User>()))
             .ReturnsAsync((User user) => user);
@@ -89,13 +89,13 @@ public class UserServiceTests
     {
         // Arrange
         var username = "testuser";
-        var password = "password123";
+        var password = "password123!X";
         var user = new User { Username = username, PasswordHash = _passwordHasher.HashPassword(null, password) };
 
         var pseudoJwtSecret = "G/i7WhUprG35ymqYQpvDnUd6Y/jHGSg0i+c7DqN+b1M=";
 
         _mockUserRepository.Setup(repo => repo.GetByUsernameAsync(username)).ReturnsAsync(user);
-        _mockConfiguration.SetupGet(config => config["Jwt:Secret"]).Returns(pseudoJwtSecret);
+        _mockConfiguration.SetupGet(config => config["Jwt:TestSecret"]).Returns(pseudoJwtSecret);
 
         var userService = CreateUserService();
 
@@ -171,5 +171,20 @@ public class UserServiceTests
 
         // Assert
         Assert.Null(retrievedUser);
+    }
+
+    [Theory]
+    [InlineData("Password123!", true)] // Valid password
+    [InlineData("password123", false)] // Missing uppercase and special character
+    [InlineData("PASSWORD123!", false)] // Missing lowercase
+    [InlineData("Password!", false)] // Missing digit
+    [InlineData("P@wOrd1", false)] // Too short
+    public void PasswordComplexityRegex_ValidatesPassword(string password, bool expectedIsValid)
+    {
+        // Act
+        var isValid = UserService.PasswordComplexityRegex.IsMatch(password);
+
+        // Assert
+        Assert.Equal(expectedIsValid, isValid);
     }
 }
