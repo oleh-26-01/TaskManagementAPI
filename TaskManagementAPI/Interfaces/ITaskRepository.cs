@@ -7,8 +7,10 @@ public interface ITaskRepository
 {
     Task<Models.Task> CreateAsync(Models.Task task);
     Task<Models.Task?> GetByIdAsync(Guid id);
-    Task<List<Models.Task>> GetAllByUserIdAsync(
+    Task<PagedList<Models.Task>> GetAllByUserIdAsync(
         Guid userId,
+        int pageNumber = 1,
+        int pageSize = 10,
         Status? status = null,
         Priority? priority = null,
         DateTime? dueDate = null,

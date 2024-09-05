@@ -8,8 +8,10 @@ public interface ITaskService
 {
     Task<Models.Task> CreateTaskAsync(Guid userId, string title, string? description, DateTime? dueDate, Status status, Priority priority);
     Task<Models.Task?> GetTaskByIdAsync(Guid taskId);
-    Task<List<Models.Task>> GetAllTasksByUserIdAsync(
+    Task<PagedList<Models.Task>> GetAllTasksByUserIdAsync(
         Guid userId,
+        int pageNumber = 1,
+        int pageSize = 10,
         Status? status = null,
         Priority? priority = null,
         DateTime? dueDate = null,

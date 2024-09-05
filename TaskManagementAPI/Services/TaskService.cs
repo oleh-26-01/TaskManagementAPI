@@ -34,8 +34,10 @@ public class TaskService : ITaskService
         return await _taskRepository.GetByIdAsync(taskId);
     }
 
-    public async Task<List<Models.Task>> GetAllTasksByUserIdAsync(
+    public async Task<PagedList<Models.Task>> GetAllTasksByUserIdAsync(
         Guid userId,
+        int pageNumber = 1,
+        int pageSize = 10,
         Status? status = null,
         Priority? priority = null,
         DateTime? dueDate = null,
@@ -45,7 +47,8 @@ public class TaskService : ITaskService
     )
     {
         var tasks = await _taskRepository
-            .GetAllByUserIdAsync(userId, status, priority, dueDate, sortBy, afterDueDate, sortDescending);
+            .GetAllByUserIdAsync(userId, pageNumber, pageSize, status, priority, dueDate, 
+                sortBy, afterDueDate, sortDescending);
         return tasks;
     }
 

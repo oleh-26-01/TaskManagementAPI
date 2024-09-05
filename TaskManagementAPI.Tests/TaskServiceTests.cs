@@ -98,8 +98,10 @@ public class TaskServiceTests
         };
 
         _mockTaskRepository.Setup(repo => repo
-            .GetAllByUserIdAsync(userId, null, null, null, null, false, false))
-            .ReturnsAsync(tasks);
+            .GetAllByUserIdAsync(
+                userId, 1, 10, null, null, null, 
+                null, false, false))
+            .ReturnsAsync(new PagedList<Models.Task>(tasks, tasks.Count, 1, 10));
 
         var taskService = CreateTaskService();
 
@@ -180,8 +182,11 @@ public class TaskServiceTests
         };
 
         _mockTaskRepository.Setup(repo => repo
-            .GetAllByUserIdAsync(userId, Status.InProgress, null, null, null, false, false))
-            .ReturnsAsync(tasks.Where(t => t.Status == Status.InProgress).ToList());
+            .GetAllByUserIdAsync(
+                userId, 1, 10, Status.InProgress, null, null, 
+                null, false, false))
+            .ReturnsAsync(new PagedList<Models.Task>(tasks.Where(t => t.Status == Status.InProgress).ToList(),
+                tasks.Count(t => t.Status == Status.InProgress), 1, 10));
 
         var taskService = CreateTaskService();
 
@@ -206,8 +211,10 @@ public class TaskServiceTests
         };
 
         _mockTaskRepository.Setup(repo => repo
-            .GetAllByUserIdAsync(userId, null, null, null, "DueDate", false, false))
-            .ReturnsAsync(tasks.OrderBy(t => t.DueDate).ToList());
+            .GetAllByUserIdAsync(
+                userId, 1, 10, null, null, null, 
+                "DueDate", false, false))
+            .ReturnsAsync(new PagedList<Models.Task>(tasks.OrderBy(t => t.DueDate).ToList(), tasks.Count, 1, 10));
 
         var taskService = CreateTaskService();
 

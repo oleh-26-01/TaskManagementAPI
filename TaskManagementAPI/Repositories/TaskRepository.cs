@@ -27,8 +27,10 @@ public class TaskRepository : ITaskRepository
         return await _context.Tasks.FindAsync(id);
     }
 
-    public async Task<List<Models.Task>> GetAllByUserIdAsync(
+    public async Task<PagedList<Models.Task>> GetAllByUserIdAsync(
         Guid userId,
+        int pageNumber = 1,
+        int pageSize = 10,
         Status? status = null,
         Priority? priority = null,
         DateTime? dueDate = null,
@@ -72,7 +74,7 @@ public class TaskRepository : ITaskRepository
             };
         }
 
-        return await query.ToListAsync();
+        return await PagedList<Models.Task>.CreateAsync(query, pageNumber, pageSize);
     }
 
     public async Task<Models.Task> UpdateAsync(Models.Task task)

@@ -59,6 +59,8 @@ public class TaskController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> GetAllTasksForCurrentUser(
+        int pageNumber = 1,
+        int pageSize = 10,
         Status? status = null,
         Priority? priority = null,
         DateTime? dueDate = null,
@@ -71,7 +73,8 @@ public class TaskController : ControllerBase
         {
             var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var tasks = await _taskService
-                .GetAllTasksByUserIdAsync(userId, status, priority, dueDate, sortBy, afterDueDate, sortDescending);
+                .GetAllTasksByUserIdAsync(userId, pageNumber, pageSize, status, priority, dueDate, 
+                    sortBy, afterDueDate, sortDescending);
             return Ok(tasks);
         }
         catch (Exception ex)
