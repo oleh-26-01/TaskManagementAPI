@@ -8,8 +8,13 @@ public interface ITaskService
 {
     Task<Models.Task> CreateTaskAsync(Guid userId, string title, string? description, DateTime? dueDate, Status status, Priority priority);
     Task<Models.Task?> GetTaskByIdAsync(Guid taskId);
-    Task<List<Models.Task>> GetAllTasksByUserIdAsync(Guid userId);
+    Task<List<Models.Task>> GetAllTasksByUserIdAsync(
+        Guid userId,
+        Status? status = null,
+        Priority? priority = null,
+        string? sortBy = null,
+        bool sortDescending = false
+    );
     Task<Models.Task> UpdateTaskAsync(Guid taskId, string? title, string? description, DateTime? dueDate, Status? status, Priority? priority);
     Task DeleteTaskAsync(Guid taskId);
-    // TODO: Add methods for filtering and sorting tasks
 }

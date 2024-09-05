@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TaskManagementAPI.Interfaces;
+using TaskManagementAPI.Models;
 using TaskManagementAPI.Models.DTOs.Incoming;
 
 namespace TaskManagementAPI.Controllers;
@@ -56,11 +57,24 @@ public class TaskController : ControllerBase
         return Ok(task);
     }
 
-    [HttpGet("user/{userId}")]
-    public async Task<IActionResult> GetAllTasksByUserId(Guid userId)
+    [HttpGet]
+    public async Task<IActionResult> GetAllTasksForCurrentUser(
+        Status? status = null,
+        Priority? priority = null,
+        string? sortBy = null,
+        bool sortDescending = false
+    )
     {
-        var tasks = await _taskService.GetAllTasksByUserIdAsync(userId);
-        return Ok(tasks);
+        try
+        {
+            var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var tasks = await _taskService.GetAllTasksByUserIdAsync(userId, status, priority, sortBy, sortDescending);
+            return Ok(tasks);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPut("{taskId}")]

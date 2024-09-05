@@ -34,9 +34,16 @@ public class TaskService : ITaskService
         return await _taskRepository.GetByIdAsync(taskId);
     }
 
-    public async Task<List<Models.Task>> GetAllTasksByUserIdAsync(Guid userId)
+    public async Task<List<Models.Task>> GetAllTasksByUserIdAsync(
+        Guid userId,
+        Status? status = null,
+        Priority? priority = null,
+        string? sortBy = null,
+        bool sortDescending = false
+    )
     {
-        return await _taskRepository.GetAllByUserIdAsync(userId);
+        var tasks = await _taskRepository.GetAllByUserIdAsync(userId, status, priority, sortBy, sortDescending);
+        return tasks;
     }
 
     public async Task<Models.Task> UpdateTaskAsync(Guid taskId, string? title, string? description, DateTime? dueDate, Status? status, Priority? priority)

@@ -97,7 +97,9 @@ public class TaskServiceTests
             new() { Id = Guid.NewGuid(), UserId = userId, Title = "Task 2" }
         };
 
-        _mockTaskRepository.Setup(repo => repo.GetAllByUserIdAsync(userId)).ReturnsAsync(tasks);
+        _mockTaskRepository.Setup(repo => repo
+            .GetAllByUserIdAsync(userId, null, null, null, false))
+            .ReturnsAsync(tasks);
 
         var taskService = CreateTaskService();
 
@@ -163,5 +165,56 @@ public class TaskServiceTests
 
         // Assert
         _mockTaskRepository.Verify(repo => repo.DeleteAsync(taskId), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAllTasksByUserIdAsync_WithFiltering_ReturnsFilteredTasks()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var tasks = new List<Models.Task>
+        {
+            new() { Id = Guid.NewGuid(), UserId = userId, Title = "Task 1", Status = Status.Pending, Priority = Priority.High },
+            new() { Id = Guid.NewGuid(), UserId = userId, Title = "Task 2", Status = Status.InProgress, Priority = Priority.Medium },
+            new() { Id = Guid.NewGuid(), UserId = userId, Title = "Task 3", Status = Status.Completed, Priority = Priority.Low }
+        };
+
+        _mockTaskRepository.Setup(repo => repo
+            .GetAllByUserIdAsync(userId, Status.InProgress, null, null, false))
+            .ReturnsAsync(tasks.Where(t => t.Status == Status.InProgress).ToList());
+
+        var taskService = CreateTaskService();
+
+        // Act
+        var retrievedTasks = await taskService.GetAllTasksByUserIdAsync(userId, status: Status.InProgress);
+
+        // Assert
+        Assert.Single(retrievedTasks);
+        Assert.All(retrievedTasks, task => Assert.Equal(Status.InProgress, task.Status));
+    }
+
+    [Fact]
+    public async Task GetAllTasksByUserIdAsync_WithSorting_ReturnsSortedTasks()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var tasks = new List<Models.Task>
+        {
+            new() { Id = Guid.NewGuid(), UserId = userId, Title = "Task 1", DueDate = DateTime.Now.AddDays(3) },
+            new() { Id = Guid.NewGuid(), UserId = userId, Title = "Task 2", DueDate = DateTime.Now.AddDays(1) },
+            new() { Id = Guid.NewGuid(), UserId = userId, Title = "Task 3", DueDate = DateTime.Now.AddDays(2) }
+        };
+
+        _mockTaskRepository.Setup(repo => repo
+            .GetAllByUserIdAsync(userId, null, null, "DueDate", false))
+            .ReturnsAsync(tasks.OrderBy(t => t.DueDate).ToList());
+
+        var taskService = CreateTaskService();
+
+        // Act
+        var retrievedTasks = await taskService.GetAllTasksByUserIdAsync(userId, sortBy: "DueDate");
+
+        // Assert
+        Assert.Equal(tasks.OrderBy(t => t.DueDate).Select(t => t.Id), retrievedTasks.Select(t => t.Id));
     }
 }

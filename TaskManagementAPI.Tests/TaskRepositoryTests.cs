@@ -157,4 +157,58 @@ public class TaskRepositoryTests
             Assert.Null(retrievedTask);
         }
     }
+
+    [Fact]
+    public async Task GetAllTasksByUserIdAsync_WithFiltering_ReturnsFilteredTasks()
+    {
+        // Arrange
+        var options = CreateInMemoryDbContextOptions();
+        var userId = Guid.NewGuid();
+
+        using (var context = new TaskManagementDbContext(options))
+        {
+            var taskRepository = new TaskRepository(context);
+            await context.Tasks.AddRangeAsync(
+                new Models.Task { UserId = userId, Title = "Task 1", Status = Status.Pending, Priority = Priority.High },
+                new Models.Task { UserId = userId, Title = "Task 2", Status = Status.InProgress, Priority = Priority.Medium },
+                new Models.Task { UserId = userId, Title = "Task 3", Status = Status.Completed, Priority = Priority.Low }
+            );
+            await context.SaveChangesAsync();
+
+            // Act
+            var retrievedTasks = await taskRepository.GetAllByUserIdAsync(userId, status: Status.InProgress);
+
+            // Assert
+            Assert.Single(retrievedTasks);
+            Assert.All(retrievedTasks, task => Assert.Equal(Status.InProgress, task.Status));
+        }
+    }
+
+    [Fact]
+    public async Task GetAllTasksByUserIdAsync_WithSorting_ReturnsSortedTasks()
+    {
+        // Arrange
+        var options = CreateInMemoryDbContextOptions();
+        var userId = Guid.NewGuid();
+
+        using (var context = new TaskManagementDbContext(options))
+        {
+            var taskRepository = new TaskRepository(context);
+            await context.Tasks.AddRangeAsync(
+                new Models.Task { UserId = userId, Title = "Task 1", DueDate = DateTime.Now.AddDays(3) },
+                new Models.Task { UserId = userId, Title = "Task 2", DueDate = DateTime.Now.AddDays(1) },
+                new Models.Task { UserId = userId, Title = "Task 3", DueDate = DateTime.Now.AddDays(2) }
+            );
+            await context.SaveChangesAsync();
+
+            // Act
+            var retrievedTasks = await taskRepository.GetAllByUserIdAsync(userId, sortBy: "DueDate");
+
+            // Assert
+            Assert.Equal(
+                context.Tasks.Where(t => t.UserId == userId).OrderBy(t => t.DueDate).Select(t => t.Id),
+                retrievedTasks.Select(t => t.Id)
+            );
+        }
+    }
 }
