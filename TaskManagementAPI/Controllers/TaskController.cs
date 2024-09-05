@@ -61,14 +61,17 @@ public class TaskController : ControllerBase
     public async Task<IActionResult> GetAllTasksForCurrentUser(
         Status? status = null,
         Priority? priority = null,
+        DateTime? dueDate = null,
         string? sortBy = null,
+        bool afterDueDate = false,
         bool sortDescending = false
     )
     {
         try
         {
             var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var tasks = await _taskService.GetAllTasksByUserIdAsync(userId, status, priority, sortBy, sortDescending);
+            var tasks = await _taskService
+                .GetAllTasksByUserIdAsync(userId, status, priority, dueDate, sortBy, afterDueDate, sortDescending);
             return Ok(tasks);
         }
         catch (Exception ex)

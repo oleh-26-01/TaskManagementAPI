@@ -12,7 +12,9 @@ public interface ITaskService
         Guid userId,
         Status? status = null,
         Priority? priority = null,
+        DateTime? dueDate = null,
         string? sortBy = null,
+        bool afterDueDate = false,
         bool sortDescending = false
     );
     Task<Models.Task> UpdateTaskAsync(Guid taskId, string? title, string? description, DateTime? dueDate, Status? status, Priority? priority);

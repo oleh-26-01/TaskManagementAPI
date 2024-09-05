@@ -11,7 +11,9 @@ public interface ITaskRepository
         Guid userId,
         Status? status = null,
         Priority? priority = null,
+        DateTime? dueDate = null,
         string? sortBy = null,
+        bool afterDueDate = false,
         bool sortDescending = false
         );
     Task<Models.Task> UpdateAsync(Models.Task task);

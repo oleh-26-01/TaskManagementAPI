@@ -98,7 +98,7 @@ public class TaskServiceTests
         };
 
         _mockTaskRepository.Setup(repo => repo
-            .GetAllByUserIdAsync(userId, null, null, null, false))
+            .GetAllByUserIdAsync(userId, null, null, null, null, false, false))
             .ReturnsAsync(tasks);
 
         var taskService = CreateTaskService();
@@ -180,7 +180,7 @@ public class TaskServiceTests
         };
 
         _mockTaskRepository.Setup(repo => repo
-            .GetAllByUserIdAsync(userId, Status.InProgress, null, null, false))
+            .GetAllByUserIdAsync(userId, Status.InProgress, null, null, null, false, false))
             .ReturnsAsync(tasks.Where(t => t.Status == Status.InProgress).ToList());
 
         var taskService = CreateTaskService();
@@ -206,7 +206,7 @@ public class TaskServiceTests
         };
 
         _mockTaskRepository.Setup(repo => repo
-            .GetAllByUserIdAsync(userId, null, null, "DueDate", false))
+            .GetAllByUserIdAsync(userId, null, null, null, "DueDate", false, false))
             .ReturnsAsync(tasks.OrderBy(t => t.DueDate).ToList());
 
         var taskService = CreateTaskService();

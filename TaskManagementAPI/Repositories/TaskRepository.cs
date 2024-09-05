@@ -31,7 +31,9 @@ public class TaskRepository : ITaskRepository
         Guid userId,
         Status? status = null,
         Priority? priority = null,
+        DateTime? dueDate = null,
         string? sortBy = null,
+        bool afterDueDate = false,
         bool sortDescending = false
     )
     {
@@ -48,6 +50,13 @@ public class TaskRepository : ITaskRepository
             query = query.Where(t => t.Priority == priority.Value);
         }
 
+        if (dueDate.HasValue)
+        {
+            query = afterDueDate
+                ? query.Where(t => t.DueDate > dueDate.Value)
+                : query.Where(t => t.DueDate <= dueDate.Value);
+        }
+
         // Apply sorting
         if (!string.IsNullOrEmpty(sortBy))
         {
@@ -56,9 +65,6 @@ public class TaskRepository : ITaskRepository
                 "duedate" => sortDescending 
                     ? query.OrderByDescending(t => t.DueDate) 
                     : query.OrderBy(t => t.DueDate),
-                "status" => sortDescending 
-                    ? query.OrderByDescending(t => t.Status) 
-                    : query.OrderBy(t => t.Status),
                 "priority" => sortDescending
                     ? query.OrderByDescending(t => t.Priority)
                     : query.OrderBy(t => t.Priority),

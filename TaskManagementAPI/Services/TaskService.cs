@@ -38,11 +38,14 @@ public class TaskService : ITaskService
         Guid userId,
         Status? status = null,
         Priority? priority = null,
+        DateTime? dueDate = null,
         string? sortBy = null,
+        bool afterDueDate = false,
         bool sortDescending = false
     )
     {
-        var tasks = await _taskRepository.GetAllByUserIdAsync(userId, status, priority, sortBy, sortDescending);
+        var tasks = await _taskRepository
+            .GetAllByUserIdAsync(userId, status, priority, dueDate, sortBy, afterDueDate, sortDescending);
         return tasks;
     }
 
