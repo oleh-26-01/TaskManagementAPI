@@ -1,6 +1,8 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Logging;
+using Moq;
 using TaskManagementAPI.Interfaces;
 using TaskManagementAPI.Models;
+using TaskManagementAPI.Repositories;
 using TaskManagementAPI.Services;
 using Task = System.Threading.Tasks.Task;
 
@@ -17,7 +19,10 @@ public class TaskServiceTests
 
     private TaskService CreateTaskService()
     {
-        return new TaskService(_mockTaskRepository.Object);
+        return new TaskService(
+            Mock.Of<ILogger<TaskService>>(),
+            _mockTaskRepository.Object
+        );
     }
 
     [Fact]

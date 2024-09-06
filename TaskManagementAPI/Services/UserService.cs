@@ -11,6 +11,7 @@ namespace TaskManagementAPI.Services;
 
 public class UserService : IUserService
 {
+    private readonly ILogger<UserService> _logger;
     private readonly IUserRepository _userRepository;
     private readonly IConfiguration _configuration;
     private readonly IPasswordHasher<User> _passwordHasher;
@@ -25,8 +26,9 @@ public class UserService : IUserService
         RegexOptions.Compiled   // Compile the regex for better performance
     );
 
-    public UserService(IUserRepository userRepository, IConfiguration configuration, IPasswordHasher<User> passwordHasher)
+    public UserService(ILogger<UserService> logger, IUserRepository userRepository, IConfiguration configuration, IPasswordHasher<User> passwordHasher)
     {
+        _logger = logger;
         _userRepository = userRepository;
         _configuration = configuration;
         _passwordHasher = passwordHasher;
@@ -34,6 +36,8 @@ public class UserService : IUserService
 
     public async Task<User> RegisterAsync(string username, string email, string password)
     {
+        _logger.LogInformation("Registering new user with username: {Username}", username);
+
         // Validate if username or email already exists
         if (await _userRepository.GetByUsernameAsync(username) != null)
         {
@@ -66,11 +70,17 @@ public class UserService : IUserService
         };
 
         // Save the user to the database
-        return await _userRepository.CreateAsync(user);
+        var createdUser = await _userRepository.CreateAsync(user);
+
+        _logger.LogInformation("User registered successfully with ID: {UserId}", createdUser.Id);
+
+        return createdUser;
     }
 
     public async Task<string> LoginAsync(string username, string password)
     {
+        _logger.LogInformation("User login attempt with username: {Username}", username);
+        
         // Find the user by username
         var user = await _userRepository.GetByUsernameAsync(username);
 
@@ -103,11 +113,16 @@ public class UserService : IUserService
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
+
+        _logger.LogInformation("User logged in successfully with ID: {UserId}", user.Id);
+
         return tokenHandler.WriteToken(token);
     }
 
     public async Task<User?> GetUserByIdAsync(Guid id)
     {
+        _logger.LogInformation("Retrieving user with ID: {UserId}", id);
+
         return await _userRepository.GetByIdAsync(id);
     }
 }

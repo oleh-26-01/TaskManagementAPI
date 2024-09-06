@@ -9,11 +9,20 @@ using TaskManagementAPI.Interfaces;
 using TaskManagementAPI.Models;
 using TaskManagementAPI.Repositories;
 using TaskManagementAPI.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// 1. Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
+builder.Host.UseSerilog(); // Tell ASP.NET Core to use Serilog
+
+// 2. Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddAuthentication(options =>
 {
@@ -64,10 +73,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var services = builder.Services;
-var configuration = builder.Configuration;
-
 services.AddDbContext<TaskManagementDbContext>(options =>
-    options.UseSqlServer(configuration.GetConnectionString("TaskManagementDatabase")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("TaskManagementDatabase")));
 services.AddScoped<IUserRepository, UserRepository>();
 services.AddScoped<IUserService, UserService>();
 services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -76,7 +83,7 @@ services.AddScoped<ITaskService, TaskService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// 3. Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -89,4 +96,16 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+try
+{
+    Log.Information("Starting up");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

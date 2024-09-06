@@ -7,15 +7,20 @@ namespace TaskManagementAPI.Services;
 
 public class TaskService : ITaskService
 {
+    private readonly ILogger<TaskService> _logger;
     private readonly ITaskRepository _taskRepository;
 
-    public TaskService(ITaskRepository taskRepository)
+    public TaskService(ILogger<TaskService> logger, ITaskRepository taskRepository)
     {
+        _logger = logger;
         _taskRepository = taskRepository;
     }
 
     public async Task<Models.Task> CreateTaskAsync(Guid userId, string title, string? description, DateTime? dueDate, Status status, Priority priority)
     {
+
+        _logger.LogInformation("Creating a new task for user {UserId} with title: {Title}", userId, title); // Log task creation
+
         var task = new Models.Task
         {
             UserId = userId,
@@ -31,6 +36,8 @@ public class TaskService : ITaskService
 
     public async Task<Models.Task?> GetTaskByIdAsync(Guid taskId, Guid userId)
     {
+        _logger.LogInformation("Retrieving task with ID: {TaskId}", taskId); // Log task retrieval
+
         var task = await _taskRepository.GetByIdAsync(taskId);
 
         if (task == null || task.UserId != userId) // Check if task exists and belongs to the user
@@ -61,6 +68,8 @@ public class TaskService : ITaskService
 
     public async Task<Models.Task> UpdateTaskAsync(Guid taskId, Guid userId, string? title, string? description, DateTime? dueDate, Status? status, Priority? priority)
     {
+        _logger.LogInformation("Updating task with ID: {TaskId}", taskId); // Log task update
+
         var task = await _taskRepository.GetByIdAsync(taskId);
 
         if (task == null || task.UserId != userId) // Check if task exists and belongs to the user
@@ -79,6 +88,8 @@ public class TaskService : ITaskService
 
     public async Task DeleteTaskAsync(Guid taskId, Guid userId)
     {
+        _logger.LogInformation("Deleting task with ID: {TaskId}", taskId); // Log task deletion
+
         var task = await _taskRepository.GetByIdAsync(taskId);
 
         if (task == null || task.UserId != userId) // Check if task exists and belongs to the user

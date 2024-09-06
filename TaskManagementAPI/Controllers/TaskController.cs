@@ -4,6 +4,7 @@ using System.Security.Claims;
 using TaskManagementAPI.Interfaces;
 using TaskManagementAPI.Models;
 using TaskManagementAPI.Models.DTOs.Incoming;
+using TaskManagementAPI.Services;
 
 namespace TaskManagementAPI.Controllers;
 
@@ -12,10 +13,12 @@ namespace TaskManagementAPI.Controllers;
 [Authorize] // Require authorization for all actions in this controller
 public class TaskController : ControllerBase
 {
+    private readonly ILogger<TaskService> _logger;
     private readonly ITaskService _taskService;
 
-    public TaskController(ITaskService taskService)
+    public TaskController(ILogger<TaskService> logger, ITaskService taskService)
     {
+        _logger = logger;
         _taskService = taskService;
     }
 
@@ -36,10 +39,13 @@ public class TaskController : ControllerBase
                 taskDto.Priority
             );
 
+            _logger.LogInformation("Task created successfully with ID: {TaskId}", task.Id);
+
             return CreatedAtAction(nameof(GetTaskById), new { id = task.Id }, task);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error creating task.");
             return BadRequest(new { message = ex.Message });
         }
     }
@@ -104,10 +110,13 @@ public class TaskController : ControllerBase
                 taskDto.Priority
             );
 
+            _logger.LogInformation("Task updated successfully with ID: {TaskId}", task.Id);
+
             return Ok(task);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error updating task with ID: {TaskId}", id);
             return BadRequest(new { message = ex.Message });
         }
     }
@@ -121,10 +130,14 @@ public class TaskController : ControllerBase
             var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             await _taskService.DeleteTaskAsync(id, userId);
+
+            _logger.LogInformation("Task deleted successfully with ID: {TaskId}", id);
+
             return NoContent();
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error deleting task with ID: {TaskId}", id);
             return BadRequest(new { message = ex.Message });
         }
     }

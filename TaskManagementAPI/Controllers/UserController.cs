@@ -10,8 +10,9 @@ public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
 
-    public UserController(IUserService userService)
+    public UserController(ILogger<UserController> logger, IUserService userService)
     {
+        _logger = logger;
         _userService = userService;
     }
 
@@ -25,6 +26,7 @@ public class UserController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error registering user.");
             return BadRequest(new { message = ex.Message });
         }
     }
@@ -39,6 +41,7 @@ public class UserController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error logging in user.");
             return BadRequest(new { message = ex.Message });
         }
     }

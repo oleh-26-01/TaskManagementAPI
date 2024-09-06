@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
 using TaskManagementAPI.Interfaces;
 using TaskManagementAPI.Models;
@@ -23,7 +24,12 @@ public class UserServiceTests
 
     private UserService CreateUserService()
     {
-        return new UserService(_mockUserRepository.Object, _mockConfiguration.Object, _passwordHasher);
+        return new UserService(
+            Mock.Of<ILogger<UserService>>(),
+            _mockUserRepository.Object,
+            _mockConfiguration.Object,
+            _passwordHasher
+        );
     }
 
     [Fact]
