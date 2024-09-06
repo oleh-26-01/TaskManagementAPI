@@ -29,9 +29,16 @@ public class TaskService : ITaskService
         return await _taskRepository.CreateAsync(task);
     }
 
-    public async Task<Models.Task?> GetTaskByIdAsync(Guid taskId)
+    public async Task<Models.Task?> GetTaskByIdAsync(Guid taskId, Guid userId)
     {
-        return await _taskRepository.GetByIdAsync(taskId);
+        var task = await _taskRepository.GetByIdAsync(taskId);
+
+        if (task == null || task.UserId != userId) // Check if task exists and belongs to the user
+        {
+            return null;
+        }
+
+        return task;
     }
 
     public async Task<PagedList<Models.Task>> GetAllTasksByUserIdAsync(
@@ -52,11 +59,11 @@ public class TaskService : ITaskService
         return tasks;
     }
 
-    public async Task<Models.Task> UpdateTaskAsync(Guid taskId, string? title, string? description, DateTime? dueDate, Status? status, Priority? priority)
+    public async Task<Models.Task> UpdateTaskAsync(Guid taskId, Guid userId, string? title, string? description, DateTime? dueDate, Status? status, Priority? priority)
     {
         var task = await _taskRepository.GetByIdAsync(taskId);
 
-        if (task == null)
+        if (task == null || task.UserId != userId) // Check if task exists and belongs to the user
         {
             throw new Exception("Task not found.");
         }
@@ -70,8 +77,15 @@ public class TaskService : ITaskService
         return await _taskRepository.UpdateAsync(task);
     }
 
-    public async Task DeleteTaskAsync(Guid taskId)
+    public async Task DeleteTaskAsync(Guid taskId, Guid userId)
     {
+        var task = await _taskRepository.GetByIdAsync(taskId);
+
+        if (task == null || task.UserId != userId) // Check if task exists and belongs to the user
+        {
+            throw new Exception("Task not found.");
+        }
+
         await _taskRepository.DeleteAsync(taskId);
     }
 }

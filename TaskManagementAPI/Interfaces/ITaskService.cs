@@ -7,7 +7,7 @@ namespace TaskManagementAPI.Interfaces;
 public interface ITaskService
 {
     Task<Models.Task> CreateTaskAsync(Guid userId, string title, string? description, DateTime? dueDate, Status status, Priority priority);
-    Task<Models.Task?> GetTaskByIdAsync(Guid taskId);
+    Task<Models.Task?> GetTaskByIdAsync(Guid taskId, Guid userId);
     Task<PagedList<Models.Task>> GetAllTasksByUserIdAsync(
         Guid userId,
         int pageNumber = 1,
@@ -19,6 +19,6 @@ public interface ITaskService
         bool afterDueDate = false,
         bool sortDescending = false
     );
-    Task<Models.Task> UpdateTaskAsync(Guid taskId, string? title, string? description, DateTime? dueDate, Status? status, Priority? priority);
-    Task DeleteTaskAsync(Guid taskId);
+    Task<Models.Task> UpdateTaskAsync(Guid taskId, Guid userId, string? title, string? description, DateTime? dueDate, Status? status, Priority? priority);
+    Task DeleteTaskAsync(Guid taskId, Guid userId);
 }

@@ -47,7 +47,10 @@ public class TaskController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetTaskById(Guid id)
     {
-        var task = await _taskService.GetTaskByIdAsync(id);
+        // Get the user ID from the JWT token
+        var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+        var task = await _taskService.GetTaskByIdAsync(id, userId);
 
         if (task == null)
         {
@@ -88,8 +91,12 @@ public class TaskController : ControllerBase
     {
         try
         {
+            // Get the user ID from the JWT token
+            var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
             var task = await _taskService.UpdateTaskAsync(
                 id,
+                userId,
                 taskDto.Title,
                 taskDto.Description,
                 taskDto.DueDate,
@@ -110,7 +117,10 @@ public class TaskController : ControllerBase
     {
         try
         {
-            await _taskService.DeleteTaskAsync(id);
+            // Get the user ID from the JWT token
+            var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            await _taskService.DeleteTaskAsync(id, userId);
             return NoContent();
         }
         catch (Exception ex)

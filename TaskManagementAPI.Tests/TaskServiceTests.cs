@@ -54,15 +54,16 @@ public class TaskServiceTests
     public async Task GetTaskByIdAsync_ExistingTask_ReturnsTask()
     {
         // Arrange
+        var userId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
-        var task = new Models.Task { Id = taskId, Title = "Test Task" };
+        var task = new Models.Task { Id = taskId, Title = "Test Task", UserId = userId };
 
         _mockTaskRepository.Setup(repo => repo.GetByIdAsync(taskId)).ReturnsAsync(task);
 
         var taskService = CreateTaskService();
 
         // Act
-        var retrievedTask = await taskService.GetTaskByIdAsync(taskId);
+        var retrievedTask = await taskService.GetTaskByIdAsync(taskId, userId);
 
         // Assert
         Assert.NotNull(retrievedTask);
@@ -70,9 +71,29 @@ public class TaskServiceTests
     }
 
     [Fact]
+    public async Task GetTaskByIdAsync_TaskDoesNotBelongToUser_ReturnsNull()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var taskId = Guid.NewGuid();
+        var task = new Models.Task { Id = taskId, Title = "Test Task", UserId = Guid.NewGuid() };
+
+        _mockTaskRepository.Setup(repo => repo.GetByIdAsync(taskId)).ReturnsAsync(task);
+
+        var taskService = CreateTaskService();
+
+        // Act
+        var retrievedTask = await taskService.GetTaskByIdAsync(taskId, userId);
+
+        // Assert
+        Assert.Null(retrievedTask);
+    }
+
+    [Fact]
     public async Task GetTaskByIdAsync_NonExistingTask_ReturnsNull()
     {
         // Arrange
+        var userId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
 
         _mockTaskRepository.Setup(repo => repo.GetByIdAsync(taskId)).ReturnsAsync((Models.Task)null);
@@ -80,7 +101,7 @@ public class TaskServiceTests
         var taskService = CreateTaskService();
 
         // Act
-        var retrievedTask = await taskService.GetTaskByIdAsync(taskId);
+        var retrievedTask = await taskService.GetTaskByIdAsync(taskId, userId);
 
         // Assert
         Assert.Null(retrievedTask);
@@ -117,8 +138,9 @@ public class TaskServiceTests
     public async Task UpdateTaskAsync_ExistingTask_UpdatesTask()
     {
         // Arrange
+        var userId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
-        var existingTask = new Models.Task { Id = taskId, Title = "Test Task", Status = Status.Pending };
+        var existingTask = new Models.Task { Id = taskId, Title = "Test Task", Status = Status.Pending, UserId = userId };
         var updatedTitle = "Updated Task";
         var updatedStatus = Status.Completed;
 
@@ -129,7 +151,7 @@ public class TaskServiceTests
         var taskService = CreateTaskService();
 
         // Act
-        var updatedTask = await taskService.UpdateTaskAsync(taskId, updatedTitle, null, null, updatedStatus, null);
+        var updatedTask = await taskService.UpdateTaskAsync(taskId, userId, updatedTitle, null, null, updatedStatus, null);
 
         // Assert
         Assert.NotNull(updatedTask);
@@ -139,9 +161,27 @@ public class TaskServiceTests
     }
 
     [Fact]
+    public async Task UpdateTaskAsync_TaskDoesNotBelongToUser_ThrowsException()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var taskId = Guid.NewGuid();
+        var existingTask = new Models.Task { Id = taskId, Title = "Test Task", Status = Status.Pending, UserId = Guid.NewGuid() }; // Different UserId
+
+        _mockTaskRepository.Setup(repo => repo.GetByIdAsync(taskId)).ReturnsAsync(existingTask);
+
+        var taskService = CreateTaskService();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<Exception>(() =>
+            taskService.UpdateTaskAsync(taskId, userId, "Updated Task", null, null, Status.Completed, null));
+    }
+
+    [Fact]
     public async Task UpdateTaskAsync_NonExistingTask_ThrowsException()
     {
         // Arrange
+        var userId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
 
         _mockTaskRepository.Setup(repo => repo.GetByIdAsync(taskId)).ReturnsAsync((Models.Task)null);
@@ -149,24 +189,43 @@ public class TaskServiceTests
         var taskService = CreateTaskService();
 
         // Act & Assert
-        await Assert.ThrowsAsync<Exception>(() => taskService.UpdateTaskAsync(taskId, "Updated Task", null, null, Status.Completed, null));
+        await Assert.ThrowsAsync<Exception>(() => taskService.UpdateTaskAsync(taskId, userId, "Updated Task", null, null, Status.Completed, null));
     }
 
     [Fact]
     public async Task DeleteTaskAsync_DeletesTask()
     {
         // Arrange
+        var userId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
+        var task = new Models.Task { Id = taskId, UserId = userId };
 
+        _mockTaskRepository.Setup(repo => repo.GetByIdAsync(taskId)).ReturnsAsync(task);
         _mockTaskRepository.Setup(repo => repo.DeleteAsync(taskId));
 
         var taskService = CreateTaskService();
 
         // Act
-        await taskService.DeleteTaskAsync(taskId);
+        await taskService.DeleteTaskAsync(taskId, userId);
 
         // Assert
         _mockTaskRepository.Verify(repo => repo.DeleteAsync(taskId), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeleteTaskAsync_TaskDoesNotBelongToUser_ThrowsException()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var taskId = Guid.NewGuid();
+        var task = new Models.Task { Id = taskId, UserId = Guid.NewGuid() };
+
+        _mockTaskRepository.Setup(repo => repo.GetByIdAsync(taskId)).ReturnsAsync(task);
+
+        var taskService = CreateTaskService();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<Exception>(() => taskService.DeleteTaskAsync(taskId, userId));
     }
 
     [Fact]
