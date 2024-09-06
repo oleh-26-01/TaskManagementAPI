@@ -32,7 +32,7 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = false,
         ClockSkew = TimeSpan.Zero,
         ValidAudience = null,
-        IssuerSigningKey = new SymmetricSecurityKey("G/i7WhUprG35ymqYQpvDnUd6Y/jHGSg0i+c7DqN+b1M="u8.ToArray())
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:TestSecret"]))
     };
 });
 builder.Services.AddEndpointsApiExplorer();

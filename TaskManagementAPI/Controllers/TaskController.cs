@@ -36,7 +36,7 @@ public class TaskController : ControllerBase
                 taskDto.Priority
             );
 
-            return CreatedAtAction(nameof(GetTaskById), new { taskId = task.Id }, task);
+            return CreatedAtAction(nameof(GetTaskById), new { id = task.Id }, task);
         }
         catch (Exception ex)
         {
@@ -44,10 +44,10 @@ public class TaskController : ControllerBase
         }
     }
 
-    [HttpGet("{taskId}")]
-    public async Task<IActionResult> GetTaskById(Guid taskId)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetTaskById(Guid id)
     {
-        var task = await _taskService.GetTaskByIdAsync(taskId);
+        var task = await _taskService.GetTaskByIdAsync(id);
 
         if (task == null)
         {
@@ -83,13 +83,13 @@ public class TaskController : ControllerBase
         }
     }
 
-    [HttpPut("{taskId}")]
-    public async Task<IActionResult> UpdateTask(Guid taskId, [FromBody] TaskUpdateDto taskDto)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateTask(Guid id, [FromBody] TaskUpdateDto taskDto)
     {
         try
         {
             var task = await _taskService.UpdateTaskAsync(
-                taskId,
+                id,
                 taskDto.Title,
                 taskDto.Description,
                 taskDto.DueDate,
@@ -105,12 +105,12 @@ public class TaskController : ControllerBase
         }
     }
 
-    [HttpDelete("{taskId}")]
-    public async Task<IActionResult> DeleteTask(Guid taskId)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteTask(Guid id)
     {
         try
         {
-            await _taskService.DeleteTaskAsync(taskId);
+            await _taskService.DeleteTaskAsync(id);
             return NoContent();
         }
         catch (Exception ex)
