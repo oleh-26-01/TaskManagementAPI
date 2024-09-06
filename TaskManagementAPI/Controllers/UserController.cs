@@ -8,6 +8,7 @@ namespace TaskManagementAPI.Controllers;
 [Route("api/users")]
 public class UserController : ControllerBase
 {
+    private readonly ILogger<UserController> _logger;
     private readonly IUserService _userService;
 
     public UserController(ILogger<UserController> logger, IUserService userService)
@@ -22,7 +23,7 @@ public class UserController : ControllerBase
         try
         {
             var user = await _userService.RegisterAsync(registrationDto.Username, registrationDto.Email, registrationDto.Password);
-            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+            return Ok(user);
         }
         catch (Exception ex)
         {
@@ -44,16 +45,5 @@ public class UserController : ControllerBase
             _logger.LogError(ex, "Error logging in user.");
             return BadRequest(new { message = ex.Message });
         }
-    }
-
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetUserById(Guid id)
-    {
-        var user = await _userService.GetUserByIdAsync(id);
-        if (user == null)
-        {
-            return NotFound();
-        }
-        return Ok(user);
     }
 }
