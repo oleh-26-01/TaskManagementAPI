@@ -35,6 +35,9 @@ public class Task
     public User User { get; set; }
 }
 
+/// <summary>
+/// The status of a task. Can be Pending, InProgress, or Completed.
+/// </summary>
 public enum Status
 {
     Pending,
@@ -42,6 +45,9 @@ public enum Status
     Completed
 }
 
+/// <summary>
+/// The priority level of a task. Can be Low, Medium, or High.
+/// </summary>
 public enum Priority
 {
     Low,

@@ -17,7 +17,16 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
+    /// <summary>
+    /// Registers a new user.
+    /// </summary>
+    /// <param name="registrationDto">The user registration data.</param>
+    /// <returns>An IActionResult containing the registered user or an error message.</returns>
+    /// <response code="200">User registered successfully.</response>
+    /// <response code="400">Bad request - Invalid input or user already exists.</response>
     [HttpPost("register")]
+    [ProducesResponseType(typeof(Models.User), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] UserRegistrationDto registrationDto)
     {
         try
@@ -32,7 +41,16 @@ public class UserController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Logs in a user and returns a JWT token.
+    /// </summary>
+    /// <param name="loginDto">The user login data.</param>
+    /// <returns>An IActionResult containing the JWT token or an error message.</returns>
+    /// <response code="200">User logged in successfully.</response>
+    /// <response code="400">Bad request - Invalid username or password.</response>
     [HttpPost("login")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Login([FromBody] UserLoginDto loginDto)
     {
         try
